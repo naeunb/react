@@ -4,7 +4,7 @@ const token = localStorage.getItem("access-token");
 
 axios.defaults.baseURL = "http://101.101.218.43";
 
-if (!token) {
+if (token) {
   axios.defaults.headers = {
     Authorization: `Bearer ${token}`,
   };
@@ -36,4 +36,12 @@ export const getCurrUser = () => {
 
 export const patchProfile = (form) => {
   return axios.patch("users/profile", form);
+};
+
+export const postPost = (form) => {
+  return axios.post("posts", form);
+};
+
+export const getAllPost = () => {
+  axios.get("/posts").then((res) => console.log(res));
 };

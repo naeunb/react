@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { RxPlus } from "react-icons/rx";
 import { useState } from "react";
+import { Button } from "../common/Button";
+import { postPost } from "../../api/admin";
 
 function Edit() {
   const [inputs, setInputs] = useState({
@@ -9,26 +11,52 @@ function Edit() {
   });
   const [previewUrls, setPreviewUrls] = useState([]);
   const handleImages = (e) => {
+    if (inputs.images.length + e.target.files.length > 5) {
+      alert("5개 이하 업로드 가능");
+      return;
+    }
     const { files } = e.target;
-    setInputs({
-      ...inputs,
-      images: [...inputs.images, ...files],
-    });
 
+    //초기화
     setPreviewUrls([]);
 
-    const fileArr = [...files];
-    fileArr.forEach((file) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        setPreviewUrls((urls) => [...urls, reader.result]);
-      };
+    setInputs((inputs) => {
+      const prevImages = inputs.images;
+
+      const fileArr = [...prevImages, ...files];
+
+      //미리보기
+      fileArr.forEach((file) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setPreviewUrls((urls) => [...urls, reader.result]);
+        };
+      });
+
+      //최종상태 업데이트
+      return { ...inputs, images: [...prevImages, ...files] };
     });
   };
+  const handleSubmit = () => {
+    const form = new FormData();
+    form.append("content", inputs.content);
+
+    inputs.images.forEach((image) => {
+      form.append("images", image);
+    });
+
+    postPost(form).then((res) => console.log(res));
+  };
+
   return (
     <Container>
-      <Textarea placeholder="내용" />
+      <Textarea
+        placeholder="내용"
+        onChange={(e) =>
+          setInputs((inputs) => ({ ...inputs, content: e.target.value }))
+        }
+      />
       <ImagesWrapper>
         {previewUrls.map((url, idx) => (
           <Preview key={idx} url={url} />
@@ -45,12 +73,19 @@ function Edit() {
           onChange={handleImages}
         />
       </ImagesWrapper>
+      <Button
+        onClick={handleSubmit}
+        style={{ position: "absolute", bottom: 0, left: 0 }}
+      >
+        등록
+      </Button>
     </Container>
   );
 }
 
 const Container = styled.div`
   padding: 20px;
+  position: relative;
 `;
 
 const Textarea = styled.textarea`
@@ -71,7 +106,9 @@ const BtnInput = styled.label`
   cursor: pointer;
 `;
 
-const ImagesWrapper = styled.div``;
+const ImagesWrapper = styled.div`
+  display: flex;
+`;
 
 export default Edit;
 
@@ -88,9 +125,10 @@ const PreviewBox = styled.div`
   justify-content: center;
   align-items: center;
   overflow: hidden;
-  height: 300px;
+  width: 100px;
+  height: 100px;
 
-  & + & {
-    margin-top: 10px;
+  img {
+    width: 200px;
   }
 `;

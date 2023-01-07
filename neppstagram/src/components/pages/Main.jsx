@@ -30,6 +30,10 @@ const Container = styled.div`
 
 const OutletWrapper = styled.div`
   flex: 1;
+
+  & > div {
+    height: 100%;
+  }
 `;
 
 export default Main;
