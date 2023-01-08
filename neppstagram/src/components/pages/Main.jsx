@@ -31,6 +31,8 @@ const Container = styled.div`
 const OutletWrapper = styled.div`
   flex: 1;
 
+  overflow-y: scroll;
+
   & > div {
     height: 100%;
   }

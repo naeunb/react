@@ -1,15 +1,19 @@
 import styled from "styled-components";
 import { RxPlus } from "react-icons/rx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../common/Button";
-import { postPost } from "../../api/admin";
+import { convertUrl, getPostById, postPost } from "../../api/admin";
+import { useParams } from "react-router-dom";
 
 function Edit() {
+  const { id } = useParams();
+  const [post, setPost] = useState(null);
   const [inputs, setInputs] = useState({
     content: "",
     images: [],
   });
   const [previewUrls, setPreviewUrls] = useState([]);
+
   const handleImages = (e) => {
     if (inputs.images.length + e.target.files.length > 5) {
       alert("5개 이하 업로드 가능");
@@ -49,14 +53,31 @@ function Edit() {
     postPost(form).then((res) => console.log(res));
   };
 
+  useEffect(() => {
+    if (id) {
+      getPostById(id).then((data) => {
+        setPost(data);
+        setInputs((inputs) => ({ ...inputs, content: data.content }));
+        setPreviewUrls([...data.img_list.map((img) => img.url)]);
+        Promise.all(
+          data.img_list.map((img) => {
+            const file = convertUrl(img.url);
+            return file;
+          })
+        ).then((res) => console.log(res));
+      });
+    }
+  }, [id]);
+
   return (
     <Container>
       <Textarea
         placeholder="내용"
+        value={inputs.content}
         onChange={(e) =>
           setInputs((inputs) => ({ ...inputs, content: e.target.value }))
         }
-      />
+      ></Textarea>
       <ImagesWrapper>
         {previewUrls.map((url, idx) => (
           <Preview key={idx} url={url} />

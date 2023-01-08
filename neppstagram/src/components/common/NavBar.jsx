@@ -9,7 +9,7 @@ function NavBar() {
   return (
     <Container>
       <NavItem>
-        <StyledLink to="home">
+        <StyledLink to="/">
           <IoIosHome size={20} />
         </StyledLink>
       </NavItem>
